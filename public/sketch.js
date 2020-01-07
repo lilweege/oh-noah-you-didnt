@@ -1,5 +1,5 @@
-let h = 'HELLO!'
-console.log(h);
+let prompt = 'HELLO!'
+console.log(prompt);
 
 // canvas
 let w;
