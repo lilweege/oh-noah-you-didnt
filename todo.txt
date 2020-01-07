@@ -1,0 +1,6 @@
+background image, animal walking images, title screen images
+Sound effects (jump, grab, score, win, lose)
+Screen fading
+Bug fixes
+Optimizations
+record showcase video

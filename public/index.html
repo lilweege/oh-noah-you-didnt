@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oh Noah You Didn't!</title>
+    <link rel="shortcut icon" href="/public/assets/favicon.ico">
+    <link href="https://fonts.googleapis.com/css?family=Bebas+Neue|Tomorrow&display=swap" rel="stylesheet">
+    <link href="https://fontlibrary.org/face/minecraftia" rel="stylesheet">
+    <link href="/public/styles.css" rel="stylesheet">
+    <script src="/public/lib/p5.js"></script>
+    <script src="/public/lib/p5.sound.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mobile-detect/1.4.4/mobile-detect.min.js"></script>
+    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+  </head>
+  <body>
+    <div class="bg">
+      <h2 style="position:absolute;text-align:center;font-size:1.5vw; width:100vw;">Disclaimer: This is a multiplayer game; play-test with a friend or yourself in another browser.</h2>
+      <div id="muteDiv">
+        <li style="list-style-type:none;">loading assets...</li>
+        <div class="loading" style="display:flex;">
+          <div class="obj"></div>
+          <div class="obj"></div>
+          <div class="obj"></div>
+          <div class="obj"></div>
+          <div class="obj"></div>
+          <div class="obj"></div>
+          <div class="obj"></div>
+          <div class="obj"></div>
+        </div>
+      </div>
+      <div id="titleDiv">
+        <!-- <a href="https://www.soundcloud.com/neatobeats" target="_blank"> -->
+          <img id="splash-img" src="/public/assets/title.png" alt="">
+        <!-- </a> -->
+        <form class="left" action="index.html">
+          <div class="titleButtons">
+            <button id="titleDiv-play">
+              <span class="container">
+                <div class="text" data-text="Play">Play</div>
+              </span>
+            </button>
+            <button class="titleDiv-stats">
+              <span class="container">
+                <div class="text" data-text="Leaderboard">Leaderboard</div>
+              </span>
+            </button>
+            <button id="titleDiv-instructions">
+              <span class="container">
+                <div class="text" data-text="Instructions">Instructions</div>
+              </span>
+            </button>
+            <button class="titleDiv-settings">
+              <span class="container">
+                <div class="text" data-text="Settings">Settings</div>
+              </span>
+            </button>
+            <button id="titleDiv-credits">
+              <span class="container">
+                <div class="text" data-text="Credits">Credits</div>
+              </span>
+            </button>
+          </div>
+        </form>
+      </div>
+      <div id="signDiv">
+        <form class="box" action="index.html">
+          <h1>Login to play</h1>
+          <input id="signDiv-user" type="text" placeholder="Username" autocomplete="off"></input>
+          <input id="signDiv-pass" type="password" placeholder="Password" autocomplete="off"></input>
+          <button id="signDiv-login">Login</button>
+          <button id="signDiv-register">Register</button>
+          <div id="loading" class="loading">
+            <div class="obj"></div>
+            <div class="obj"></div>
+            <div class="obj"></div>
+            <div class="obj"></div>
+            <div class="obj"></div>
+            <div class="obj"></div>
+            <div class="obj"></div>
+            <div class="obj"></div>
+          </div>
+        </form>
+        <div class="right">
+          <button class="backButton">
+            <span class="container">
+              <div class="text" data-text="Back">Back</div>
+            </span>
+          </button>
+        </div>
+      </div>
+      <div id="statsDiv">
+        <div class="box">
+          <h1>Leaderboard</h1>
+          <div id="results">
+            <ul>
+              <div id="player">Player</div>
+              <div id="avg">Average&nbsp;Score</div>
+              <div id="hs">High&nbsp;Score</div>
+            </ul>
+          </div>
+          <div id="statsLoading" class="loading">
+            <div class="obj"></div>
+            <div class="obj"></div>
+            <div class="obj"></div>
+            <div class="obj"></div>
+            <div class="obj"></div>
+            <div class="obj"></div>
+            <div class="obj"></div>
+            <div class="obj"></div>
+          </div>
+        </div>
+
+        <div class="right">
+          <button class="backButton" name="statsBack">
+            <span class="container">
+              <div class="text" data-text="Back">Back</div>
+            </span>
+          </button>
+        </div>
+      </div>
+      <div id="instructionsDiv">
+        <div class="box">
+          <h1>instructions</h1>
+          <h2>Objective:</h2><br>
+          <ul style="text-align:left">
+            <li>You play as Noah</li>
+            <li>Your goal is to bring as many animals as you can to the arc before the flood occurs and the timer runs out.</li>
+            <li>You must compete with other players who also play as Noah to see who can save the most animals.</li>
+            <li>You can steal animals that other players are holding.</li>
+            <li>The player with the most animals saved once the flood occurs wins!</li>
+          </ul>
+          <br>
+          <h2>Controls:</h2><br>
+          <ul style="text-align:left">
+            <li>Use the w, a, s, d keys to move around the map(jump, left, drop, right).</li>
+            <li>Press the space bar while touching an animal to pick it up.</li>
+          </ul>
+        </div>
+        <div class="right">
+          <button class="backButton">
+            <span class="container">
+              <div class="text" data-text="Back">Back</div>
+            </span>
+          </button>
+        </div>
+      </div>
+      <div id="settingsDiv">
+        <div class="box">
+          <h1>settings</h1>
+          Music Volume:
+          <div id="bgmvol"></div>
+          SFX volume:
+          <div id="sfxvol"></div>
+        </div>
+        <div class="right">
+          <button class="backButton" name="settingsBack">
+            <span class="container">
+              <div class="text" data-text="Back">Back</div>
+            </span>
+          </button>
+        </div>
+      </div>
+      <div id="creditsDiv">
+        <div class="box">
+          <h1>credits</h1>
+          <p>
+            <li style="list-style-type:none;">Created by: MARCY-03</li><br>
+            <li style="list-style-type:none;">Game and Design: Luigi Quattrociocchi</li><br>
+            <li style="list-style-type:none;">Game and Design: Ahmed El Ashmawy</li><br>
+            <li style="list-style-type:none;">Art and Graphics: Nate Tan</li><br>
+            <li style="list-style-type:none;">Teacher: Ms.Manoil</li><br><br><br>
+            <li style="list-style-type:none;">Song Citations:</li><br>
+            <li style="list-style-type:none;">Title screen song: C418 - STRAD</li><br>
+            <li style="list-style-type:none;">Game song 1: ZwiReK - HOT Arab / Hip Hop beat</li><br>
+            <li style="list-style-type:none;">Game song 2: La Caution - Thé à la Menthe</li><br>
+            <li style="list-style-type:none;">Game song 3: EkiOnTheBeat - NEW 2013 CLUB BEAT</li><br>
+          </p>
+        </div>
+        <div class="right">
+          <button class="backButton">
+            <span class="container">
+              <div class="text" data-text="Back">Back</div>
+            </span>
+          </button>
+        </div>
+      </div>
+      <div id="gameDiv">
+        <div id="sketch-holder"></div>
+        <div class="right">
+          <button class="backButton" name="Menu">
+            <span class="container">
+              <div class="text" data-text="Main Menu">Main Menu</div>
+            </span>
+          </button>
+        </div>
+        <div class="settingsRight">
+          <button class="titleDiv-settings">
+            <span class="container">
+              <div class="text" data-text="Settings">Settings</div>
+            </span>
+          </button>
+        </div>
+        <div class="statsInGame">
+          <button class="titleDiv-stats" >
+            <span class="container">
+              <div class="text" data-text="Leaderboard">Leaderboard</div>
+            </span>
+          </button>
+        </div>
+        <div class="chat">
+          <div id="chat-text">
+          </div>
+          <form id="chat-form">
+            <input id="chat-input" type="text" placeholder="Enter chat message:" autocomplete="off"></input>
+          </form>
+        </div>
+      </div>
+    </div>
+    <script src="/public/sketch.js"></script>
+    <script src="/public/client.js"></script>
+  </body>
+</html>

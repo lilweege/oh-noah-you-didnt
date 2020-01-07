@@ -1,0 +1,394 @@
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Tomorrow', sans-serif;
+  max-height: 100vh;
+  max-width: 100%;
+}
+
+#muteDiv {
+  user-select: none;
+  font-size: 2vw;
+  font-weight: 200;
+  color: white;
+  position: absolute;
+  /* background: #444444aa; */
+  background: black;
+  width: 100%;
+  height: 100vh;
+  max-height: 100vh;
+  max-width: 100%;
+  text-align: center;
+  line-height: 100vh;
+  z-index: 1;
+}
+
+#titleDiv {
+  display: auto;
+  user-select: none;
+}
+
+#signDiv {
+  display: none;
+  user-select: none;
+}
+#statsDiv {
+  display: none;
+  user-select: none;
+}
+#gameDiv {
+  display: none;
+  user-select: none;
+}
+
+#instructionsDiv {
+  display: none;
+  user-select: none;
+}
+
+#creditsDiv {
+  display: none;
+  user-select: none;
+}
+
+#settingsDiv {
+  display: none;
+  user-select: none;
+}
+
+.bg {
+  position: absolute;
+  background: linear-gradient(-45deg, #805821, #e6dc17, #fdcb6e, #2e86de);
+  background-size: 400% 400%;
+  width: 100%;
+  height: 100vh;
+  animation: animate 60s linear infinite;
+}
+
+@keyframes animate {
+  0% {
+    background-position: 0 50%;
+  }
+  50% {
+    background-position: 95% 95%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+.box {
+  width: 300px;
+  padding: 40px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #191919;
+  text-align: center;
+  border-radius: 10px;
+  color: white;
+}
+
+.box ul {
+  position: relative;
+  /* z-index: 1;
+  font-size: 14px; */
+  padding: 20px 0;
+}
+
+#player {
+  position:absolute;
+  left:10%;
+  transform:translate(-50%,0);
+}
+#avg {
+  position:absolute;
+  left:50%;
+  transform:translate(-50%,0);
+}
+#hs {
+  position:absolute;
+  left:90%;
+  transform:translate(-50%,0);
+}
+
+.box h1 {
+  color: white;
+  font-weight: 500;
+}
+
+.box input {
+  border: 0;
+  background: none;
+  display: block;
+  margin: 0px auto;
+  margin-bottom: 20px;
+  text-align: center;
+  border: 2px solid #3498db;
+  padding: 14px 0px;
+  width: 200px;
+  outline: none;
+  color: white;
+  border-radius: 24px;
+  transition: 0.25s;
+}
+
+.box input:focus {
+  width: 250px;
+  border-color: #2ecc71;
+}
+
+.box button {
+  font-size: 100;
+  border: 0;
+  width: 95px;
+  background: none;
+  margin: 0px 5px;
+  margin-bottom: 20px;
+  text-align: center;
+  border: 2px solid #2ecc71;
+  padding: 10px 0px;
+  outline: none;
+  color: white;
+  border-radius: 24px;
+  transition: 0.25s;
+  cursor: pointer;
+  font-family: 'Bebas Neue', cursive;
+}
+
+.box button:hover {
+  background: #2ecc71;
+}
+
+.left {
+  position: fixed;
+  width: 40%;
+  height: 100vh;
+}
+
+.titleButtons {
+  position: absolute;
+  width: 100%;
+  height: 70%;
+  top: 65%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.left button {
+  font-size: 2vw;
+  display: block;
+  margin: auto;
+  width: auto;
+  background: none;
+  text-align: center;
+  padding: 0;
+  outline: none;
+  color: white;
+  transition: 0.25s;
+  cursor: pointer;
+  border: none;
+}
+
+.container {
+  position: relative;
+  display: inline-block;
+  padding: 0 2vw;
+  cursor: pointer;
+  border: 2px solid #00000000;
+  outline: none;
+  transition: 0.6s;
+}
+
+.text {
+  font-size: 4vw;
+  text-transform: uppercase;
+  position: relative;
+  color: #4d4537;
+  font-family: 'Bebas Neue', cursive;
+}
+
+.container:hover {
+  transition: 0.6s;
+}
+
+.text::before {
+  content: attr(data-text);
+  position: absolute;
+  color: #fff;
+  width: 0;
+  overflow: hidden;
+  transition: 0.6s;
+}
+.container::before{
+  content: "";
+  width: 0%;
+  height: 100%;
+  position: absolute;
+  background: #cc8e35;
+  right: 0;
+  top: 0;
+  transition: 0.6s;
+}
+.container:hover .text::before,
+.container:hover::before {
+  width: 100%;
+}
+
+.right {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  height: auto;
+  width: auto;
+  border: none;
+}
+
+.right button {
+  display: block;
+  width: auto;
+  background: none;
+  text-align: center;
+  padding: 0;
+  outline: none;
+  color: white;
+  transition: 0.25s;
+  cursor: pointer;
+  border: none;
+}
+
+.settingsRight {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: auto;
+  width: auto;
+  border: none;
+}
+
+.statsInGame {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: auto;
+  width: auto;
+  border: none;
+}
+
+.statsInGame button {
+  display: block;
+  width: auto;
+  background: none;
+  text-align: center;
+  padding: 0;
+  outline: none;
+  color: white;
+  transition: 0.25s;
+  cursor: pointer;
+  border: none;
+}
+
+.settingsRight button {
+  display: block;
+  width: auto;
+  background: none;
+  text-align: center;
+  padding: 0;
+  outline: none;
+  color: white;
+  transition: 0.25s;
+  cursor: pointer;
+  border: none;
+}
+
+.chat {
+  display: block;
+  position: absolute;
+  bottom: 10%;
+  left: 28.5%;
+  height: 10vh;
+  width: 42.5vw;
+}
+
+#chat-text {
+  background: white;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow-y: scroll;
+  border: 1px solid #000000;
+  user-select: text;
+  font-family: 'MinecraftiaRegular';
+}
+
+#chat-input {
+  position: relative;
+  font-size: 5vh
+  top: 24px;
+  margin-top: 15px;
+  height: 3vh;
+  width: 100%;
+  border: 1px solid #000000;
+}
+
+#splash-img {
+  position: absolute;
+  top:50%;
+  right: 0;
+  transform: translate(0, -50%);
+  height: auto;
+  width: 60%;
+}
+
+.loading{
+  display: none;
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  height: 40px;
+  align-items: center;
+}
+.obj{
+  width: 6px;
+  height: 40px;
+  background: white;
+  margin: 0 3px;
+  border-radius: 10px;
+  animation: loading 0.8s infinite;
+}
+.obj:nth-child(2){
+  animation-delay: 0.1s;
+}
+.obj:nth-child(3){
+  animation-delay: 0.2s;
+}
+.obj:nth-child(4){
+  animation-delay: 0.3s;
+}
+.obj:nth-child(5){
+  animation-delay: 0.4s;
+}
+.obj:nth-child(6){
+  animation-delay: 0.5s;
+}
+.obj:nth-child(7){
+  animation-delay: 0.6s;
+}
+.obj:nth-child(8){
+  animation-delay: 0.7s;
+}
+
+@keyframes loading {
+  0%{
+    height: 0;
+  }
+  50%{
+    height: 40px;
+  }
+  100%{
+    height: 0;
+  }
+}
