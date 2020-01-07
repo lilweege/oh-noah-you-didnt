@@ -1,4 +1,5 @@
-console.log('HELLO!');
+let h = 'HELLO!'
+console.log(h);
 
 // canvas
 let w;
