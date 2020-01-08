@@ -2,7 +2,8 @@ console.log('server running');
 
 // mongo
 let mongojs = require("mongojs");
-let uri = 'mongodb://admin:root123@ds063449.mlab.com:63449/heroku_wtqs46qf';
+// let uri = 'mongodb://admin:root123@ds063449.mlab.com:63449/heroku_wtqs46qf';
+let uri = 'mongodb://admin:password1@ds261238.mlab.com:61238/heroku_xk7d8sdw'
 let db = mongojs(process.env.MONGODB_URI || uri);
 
 // express
