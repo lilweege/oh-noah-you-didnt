@@ -11,7 +11,6 @@ const env = require("dotenv").config({ path: "./.env" });
 const Mongoose = require('mongoose');
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.rlus3.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`
-
 ;(async() => {
 	await Mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 	console.log("db connected");
@@ -302,36 +301,39 @@ function startGame() {
 
 async function endGame() {
 	console.log("end game");
-  state = 3;
+	state = 3;
+	timer = 10000;
   for (let i in PLAYER_LIST) {
 	if (!PLAYER_LIST[i].spectating) {
-		await Account.updateOne(
+		Account.updateOne(
 			{ username: PLAYER_LIST[i].user },
 			{ $push: {scores: PLAYER_LIST[i].score} },
 		(err, num, raw) => {})
-
+		let entry
+		let totalScores = 0
 		await Account.find({
 			username: PLAYER_LIST[i].user
-		}).then(async entries => {
-			let entry = entries[0]
-			let totalScores = 0
+		}).then(entries => {
+			entry = entries[0]
 			for (let i = 0; i < entry.scores.length; i++) {
 				totalScores += entry.scores[i];
-			}
-			await Account.updateOne(
-				{ username: PLAYER_LIST[i].user },
-				{ avgscore: (totalScores / entry.scores.length).toFixed(2) },
-			(err, num, raw) => {})
-
-			if (PLAYER_LIST[i].score > entry.highScore) {
-				await Account.updateOne(
-					{ username: PLAYER_LIST[i].user },
-					{ highscore: PLAYER_LIST[i].score },
-				(err, num, raw) => {})
 			}
 		}).catch(err => {
 			console.error(err)
 		})
+		console.log(entry);
+		Account.updateOne(
+			{ username: PLAYER_LIST[i].user },
+			{ avgscore: (totalScores / entry.scores.length).toFixed(2),
+			highscore: Math.max(entry.highscore, PLAYER_LIST[i].score)},
+			(err, num, raw) => {})
+
+		// if (PLAYER_LIST[i].score > entry.highscore) {
+		// 	await Account.updateOne(
+		// 		{ username: PLAYER_LIST[i].user },
+		// 		{ highscore: PLAYER_LIST[i].score },
+		// 		(err, num, raw) => {})
+		// }
 	  // db.accounts.update({"username":PLAYER_LIST[i].user}, {$push: {"scores":PLAYER_LIST[i].score}});
 	  // db.accounts.find({"username":PLAYER_LIST[i].user}, function(err, res) {
 	  //   for (let i = 0; i < res[0].scores.length; i++) {
@@ -345,7 +347,6 @@ async function endGame() {
 	  // });
 	}
   }
-  timer = 10000;
 }
 
 function createPlayer(id, user) {
