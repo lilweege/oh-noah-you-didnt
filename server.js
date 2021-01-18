@@ -16,7 +16,7 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 	await Mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 	console.log("db connected");
 
-	await test()
+	// await test()
 })()
 
 const userSchema = new Mongoose.Schema({
@@ -28,15 +28,15 @@ const userSchema = new Mongoose.Schema({
 });
 const Account = Mongoose.model('Account', userSchema);
 
-const test = async () => {
-	console.log("test")
-	await Account.find({username: "luigi"})
-	.then(entries => {
-	})
-	.catch(err => {
-		console.error(err)
-	})
-}
+// const test = async () => {
+// 	console.log("test")
+// 	await Account.find({username: "luigi"})
+// 	.then(entries => {
+// 	})
+// 	.catch(err => {
+// 		console.error(err)
+// 	})
+// }
 
 // express
 let location = '/public';
@@ -44,8 +44,8 @@ let express = require('express');
 let app = express();
 let serv = require('http').Server(app);
 app.get('/',function(req, res) {
-	res.send("Sorry, game is temporarily unavailable due to database service shutdown")
-  // res.sendFile(__dirname + location + '/index.html');
+	// res.send("Sorry, game is temporarily unavailable due to database service shutdown")
+	res.sendFile(__dirname + location + '/index.html');
 });
 app.use(location, express.static(__dirname + location));
 let port = process.env.PORT || 8080;
@@ -54,12 +54,49 @@ serv.listen(port);
 // socket
 let state = 0;
 let d = false;
-let timer = 45000;
+// let timer = 45000;
+let timer = 5000;
 let SOCKET_LIST = {};
 let io = require('socket.io')(serv,{});
 io.sockets.on('connection', function(socket) {
 	SOCKET_LIST[socket.id] = socket;
-	socket.on('signIn', function(data) {
+	socket.on('signIn', async function(data) {
+
+		await Account.find({
+			username: data.user,
+			password: data.pass
+		}).then(entries => {
+			let taken = false;
+			if (PLAYER_LIST.length != 0) {
+				for (let i in PLAYER_LIST) {
+					if (PLAYER_LIST[i].user == data.user) {
+						taken = true;
+						socket.emit('signInResponse', {success: 2}); // user taken
+						break;
+					}
+				}
+			}
+
+			if (!taken) {
+				let exists = entries.length > 0
+				if (exists) {
+					socket.emit('signInResponse', {success:1}); // successful login
+					if (state == 2 && countProperties(PLAYER_LIST) + 1 >= 2) timer = 10000;
+					createPlayer(socket.id, data.user);
+					for (let i in SOCKET_LIST) {
+						SOCKET_LIST[i].emit('addToChat', PLAYER_LIST[socket.id].user + ' has joined the game.');
+					}
+				}
+				else {
+					socket.emit('signInResponse', {success:0}); // wrong user and pass
+				}
+			}
+
+		}).catch(err => {
+			console.error(err)
+		})
+
+
 		// db.accounts.find({username:data.user, password:data.pass}, function(err, res) {
 		//   let taken = false;
 		//   if (PLAYER_LIST.length != 0) {
@@ -87,37 +124,40 @@ io.sockets.on('connection', function(socket) {
 	});
 
 	socket.on('register', async function(data) {
-		let exists = true
-		await Account.find({username: data.user})
-			.then(entries => {
-				exists = !!entries
-			})
-			.catch(err => {
-				console.error(err)
-			})
-
 		let empty = (data.user == "" || data.pass == "");
 		let longer = (data.user.length >= 14);
+
 		if (longer) {
 			socket.emit('registerResponse', {success:4}); // user too long
 		}
-		else if (!exists && !empty) {
-			socket.emit('registerResponse', {success:1}); // successful register
-			// new Account({
-			//
-			// }).save(err => {});
-
-			// db.accounts.insert({username:data.user, password:data.pass, highScore:0, scores:[], avgScore:0});
-		}
-		else if (!exists && empty) {
+		else if (empty) {
 			socket.emit('registerResponse', {success:0}); // empty user or pass
 		}
-		else if (exists) {
-			socket.emit('registerResponse', {success:2}); // user taken
+		else {
+			let exists = true
+			await Account.find({username: data.user})
+				.then(entries => {
+					exists = entries.length > 0
+				})
+				.catch(err => {
+					console.error(err)
+				})
+
+			if (exists) {
+				socket.emit('registerResponse', {success:2}); // user taken
+			}
+			else {
+				socket.emit('registerResponse', {success:1}); // successful register
+				new Account({
+					username: data.user,
+					password: data.pass,
+					highscore: 0,
+					scores: [],
+					avgscore: 0
+				}).save(err => {});
+			}
+
 		}
-
-		console.log("test")
-
 
 		// db.accounts.find({username:data.user}, function(err, res) {
 		//   let exists = (res.length > 0);
@@ -139,8 +179,22 @@ io.sockets.on('connection', function(socket) {
 		// });
 	});
 
-	socket.on('leaderboard', function(id) {
-		let leader = [];
+	socket.on('leaderboard', async function(id) {
+		await Account.find({})
+		.then(entries => {
+			let leader = [];
+			for (let entry of entries) {
+				leader.push({
+					username: entry.username,
+					avgScore: entry.avgscore,
+					highScore: entry.highscore
+				});
+			}
+			socket.emit("leaderboardResponse", leader);
+		}).catch(err => {
+			console.error(err)
+		})
+
 		// db.accounts.find(function(err, res) {
 		//   for (let i in res) {
 		// 	leader.push({username: res[i].username, avgScore: res[i].avgScore, highScore: res[i].highScore});
@@ -190,7 +244,6 @@ let ANIMAL_LIST = {};
 let PLATFORM_LIST = [];
 let final = null;
 let finala = null;
-totalScores = 0;
 let framerate = 30;
 let width = 800;
 let height = 600;
@@ -232,7 +285,8 @@ function waitForPlayers() {
 function startGame() {
   final = null;
   finala = null;
-  timer = 45000;
+  // timer = 45000;
+  timer = 5000;
   let count = 1;
   let numPlayers = countProperties(PLAYER_LIST);
   for (let i in PLAYER_LIST) {
@@ -246,10 +300,38 @@ function startGame() {
   state = 1;
 }
 
-function endGame() {
+async function endGame() {
+	console.log("end game");
   state = 3;
   for (let i in PLAYER_LIST) {
 	if (!PLAYER_LIST[i].spectating) {
+		await Account.updateOne(
+			{ username: PLAYER_LIST[i].user },
+			{ $push: {scores: PLAYER_LIST[i].score} },
+		(err, num, raw) => {})
+
+		await Account.find({
+			username: PLAYER_LIST[i].user
+		}).then(async entries => {
+			let entry = entries[0]
+			let totalScores = 0
+			for (let i = 0; i < entry.scores.length; i++) {
+				totalScores += entry.scores[i];
+			}
+			await Account.updateOne(
+				{ username: PLAYER_LIST[i].user },
+				{ avgscore: (totalScores / entry.scores.length).toFixed(2) },
+			(err, num, raw) => {})
+
+			if (PLAYER_LIST[i].score > entry.highScore) {
+				await Account.updateOne(
+					{ username: PLAYER_LIST[i].user },
+					{ highscore: PLAYER_LIST[i].score },
+				(err, num, raw) => {})
+			}
+		}).catch(err => {
+			console.error(err)
+		})
 	  // db.accounts.update({"username":PLAYER_LIST[i].user}, {$push: {"scores":PLAYER_LIST[i].score}});
 	  // db.accounts.find({"username":PLAYER_LIST[i].user}, function(err, res) {
 	  //   for (let i = 0; i < res[0].scores.length; i++) {
@@ -347,7 +429,7 @@ function initPlatforms() {
   return platformPack;
 }
 
-function updateGame() {
+async function updateGame() {
   let numPlayers = countProperties(PLAYER_LIST);
 
   if (state == 0 && numPlayers >= 2) {
@@ -364,7 +446,7 @@ function updateGame() {
 	startGame();
   }
   if ((state == 1 && numPlayers <= 1 && timer > 0) || (state == 1 && timer < 0)) {
-	endGame();
+	await endGame();
   }
   if (state == 3 && timer < 0) {
 	state = 0;
@@ -381,7 +463,7 @@ function updateGame() {
   }
 }
 
-setInterval (function() {
+setInterval (async function() {
   let pack;
   if (state == 1) {
 	timer -= framerate;
@@ -424,7 +506,7 @@ setInterval (function() {
 	  state: state,
 	};
   }
-  updateGame();
+  await updateGame();
   for (let i in SOCKET_LIST) {
 	let socket = SOCKET_LIST[i];
 	socket.emit('update', pack);
